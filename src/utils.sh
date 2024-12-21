@@ -1,28 +1,15 @@
 #!/usr/bin/env bash
 
-# function get_tmux_option() {
-# 	local option=$1
-# 	local default_value=$2
-# 	local -r option_value=$(tmux show-option -gqv "$option")
-
-# 	if [ -z "$option_value" ]; then
-# 		echo "$default_value"
-# 	else
-# 		echo "$option_value"
-# 	fi
-# }
-
 function get_tmux_option() {
-    local option=$1
-    local default_value=$2
-    local option_value
-    
-    # Use -n to handle null vs empty string
-    if option_value=$(tmux show-option -gqv "$option"); then
-        echo "${option_value}"
-    else
-        echo "$default_value"
-    fi
+	local option=$1
+	local default_value=$2
+	local -r option_value=$(tmux show-option -gqv "$option")
+
+	if [ -z "$option_value" ]; then
+		echo "$default_value"
+	else
+		echo "$option_value"
+	fi
 }
 
 function generate_left_side_string() {
@@ -42,7 +29,7 @@ function generate_left_side_string() {
 
 function generate_inactive_window_string() {
 
-	inactive_window_icon=$(get_tmux_option "@theme_plugin_inactive_window_icon" " ")
+	inactive_window_icon=""
 	zoomed_window_icon=$(get_tmux_option "@theme_plugin_zoomed_window_icon" " ")
 	left_separator=$(get_tmux_option "@theme_left_separator" "")
 	transparent=$(get_tmux_option "@theme_transparent_status_bar" "false")
@@ -65,7 +52,7 @@ function generate_inactive_window_string() {
 
 function generate_active_window_string() {
 
-	active_window_icon=$(get_tmux_option "@theme_plugin_active_window_icon" " ")
+	active_window_icon=""
 	zoomed_window_icon=$(get_tmux_option "@theme_plugin_zoomed_window_icon" " ")
 	pane_synchronized_icon=$(get_tmux_option "@theme_plugin_pane_synchronized_icon" "✵")
 	left_separator=$(get_tmux_option "@theme_left_separator" "")
