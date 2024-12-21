@@ -1,15 +1,28 @@
 #!/usr/bin/env bash
 
-function get_tmux_option() {
-	local option=$1
-	local default_value=$2
-	local -r option_value=$(tmux show-option -gqv "$option")
+# function get_tmux_option() {
+# 	local option=$1
+# 	local default_value=$2
+# 	local -r option_value=$(tmux show-option -gqv "$option")
 
-	if [ -z "$option_value" ]; then
-		echo "$default_value"
-	else
-		echo "$option_value"
-	fi
+# 	if [ -z "$option_value" ]; then
+# 		echo "$default_value"
+# 	else
+# 		echo "$option_value"
+# 	fi
+# }
+
+function get_tmux_option() {
+    local option=$1
+    local default_value=$2
+    local option_value
+    
+    # Use -n to handle null vs empty string
+    if option_value=$(tmux show-option -gqv "$option"); then
+        echo "${option_value}"
+    else
+        echo "$default_value"
+    fi
 }
 
 function generate_left_side_string() {
