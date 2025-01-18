@@ -24,7 +24,7 @@ function generate_left_side_string() {
     local separator_end="#[bg=${PALLETE[bg_highlight]}]#{?client_prefix,#[fg=${PALLETE[yellow]}],#[fg=${PALLETE[cmd_blue]}]}${left_separator:?}#[none]"
   fi
 
-  echo "#[fg=${PALLETE[fg_gutter]},bold]#{?client_prefix,#[bg=${PALLETE[yellow]}],#[bg=${PALLETE[green]}]} ${session_icon} #S ${separator_end}"
+  echo "#[fg=${PALLETE[fg_gutter]},bold]#{?client_prefix,#[bg=${PALLETE[yellow]}],#[bg=${PALLETE[cmd_blue]}]} ${session_icon} #S ${separator_end}"
 }
 
 function generate_inactive_window_string() {
@@ -62,13 +62,13 @@ function generate_active_window_string() {
   if [ "$transparent" = "true" ]; then
     left_separator_inverse=$(get_tmux_option "@theme_transparent_left_separator_inverse" "")
 
-    separator_start="#[bg=default,fg=${PALLETE['cmd_light_red']}]${left_separator_inverse}#[bg=${PALLETE['cmd_light_red']},fg=${PALLETE['bg_highlight']}]"
-    separator_internal="#[bg=${PALLETE['cmd_red']},fg=${PALLETE['cmd_light_red']}]${left_separator:?}#[none]"
-    separator_end="#[bg=default,fg=${PALLETE['cmd_red']}]${left_separator:?}#[none]"
+    separator_start="#[bg=default,fg=${PALLETE['cmd_light_purple']}]${left_separator_inverse}#[bg=${PALLETE['cmd_light_purple']},fg=${PALLETE['bg_highlight']}]"
+    separator_internal="#[bg=${PALLETE['cmd_purple']},fg=${PALLETE['cmd_light_purple']}]${left_separator:?}#[none]"
+    separator_end="#[bg=default,fg=${PALLETE['cmd_purple']}]${left_separator:?}#[none]"
   else
-    separator_start="#[bg=${PALLETE['cmd_light_red']},fg=${PALLETE['bg_highlight']}]${left_separator:?}#[none]"
-    separator_internal="#[bg=${PALLETE['cmd_red']},fg=${PALLETE['cmd_light_red']}]${left_separator:?}#[none]"
-    separator_end="#[bg=${PALLETE[bg_highlight]},fg=${PALLETE['cmd_red']}]${left_separator:?}#[none]"
+    separator_start="#[bg=${PALLETE['cmd_light_purple']},fg=${PALLETE['bg_highlight']}]${left_separator:?}#[none]"
+    separator_internal="#[bg=${PALLETE['cmd_purple']},fg=${PALLETE['cmd_light_purple']}]${left_separator:?}#[none]"
+    separator_end="#[bg=${PALLETE[bg_highlight]},fg=${PALLETE['cmd_purple']}]${left_separator:?}#[none]"
   fi
 
   echo "${separator_start}#[fg=${PALLETE[white]}]#I${separator_internal}#[fg=${PALLETE[white]}] #{?window_zoomed_flag,$zoomed_window_icon,$active_window_icon}${active_window_title}#{?pane_synchronized,$pane_synchronized_icon,}${separator_end}#[none]"
