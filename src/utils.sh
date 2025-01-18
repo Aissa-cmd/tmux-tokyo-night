@@ -62,12 +62,12 @@ function generate_active_window_string() {
   if [ "$transparent" = "true" ]; then
     left_separator_inverse=$(get_tmux_option "@theme_transparent_left_separator_inverse" "")
 
-    separator_start="#[bg=default,fg=${PALLETE['magenta']}]${left_separator_inverse}#[bg=${PALLETE['magenta']},fg=${PALLETE['bg_highlight']}]"
-    separator_internal="#[bg=${PALLETE['purple']},fg=${PALLETE['magenta']}]${left_separator:?}#[none]"
-    separator_end="#[bg=default,fg=${PALLETE['purple']}]${left_separator:?}#[none]"
+    separator_start="#[bg=default,fg=${PALLETE['cmd_light_red']}]${left_separator_inverse}#[bg=${PALLETE['cmd_light_red']},fg=${PALLETE['bg_highlight']}]"
+    separator_internal="#[bg=${PALLETE['cmd_red']},fg=${PALLETE['cmd_light_red']}]${left_separator:?}#[none]"
+    separator_end="#[bg=default,fg=${PALLETE['cmd_red']}]${left_separator:?}#[none]"
   else
-    separator_start="#[bg=${PALLETE['magenta']},fg=${PALLETE['bg_highlight']}]${left_separator:?}#[none]"
-    separator_internal="#[bg=${PALLETE['purple']},fg=${PALLETE['cmd_light_red']}]${left_separator:?}#[none]"
+    separator_start="#[bg=${PALLETE['cmd_light_red']},fg=${PALLETE['bg_highlight']}]${left_separator:?}#[none]"
+    separator_internal="#[bg=${PALLETE['cmd_red']},fg=${PALLETE['cmd_light_red']}]${left_separator:?}#[none]"
     separator_end="#[bg=${PALLETE[bg_highlight]},fg=${PALLETE['cmd_red']}]${left_separator:?}#[none]"
   fi
 
