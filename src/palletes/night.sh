@@ -40,8 +40,6 @@ declare -A PALLETE=(
   [cmd_light_red]="#fc92a6"
   [cmd_purple]="#a475fa"
   [cmd_light_purple]="#BB9AF7"
-  [cmd_light_orange]="#FF9D65"
-  [cmd_orange]="#fa630c"
 )
 
 export PALLETE
