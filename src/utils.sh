@@ -32,6 +32,7 @@ function generate_inactive_window_string() {
   inactive_window_icon=""
   zoomed_window_icon=$(get_tmux_option "@theme_plugin_zoomed_window_icon" " ")
   left_separator=$(get_tmux_option "@theme_left_separator" "")
+  port_indicator_icon=$(get_tmux_option "@theme_port_indicator_icon" "{:}")
   transparent=$(get_tmux_option "@theme_transparent_status_bar" "false")
   inactive_window_title=$(get_tmux_option "@theme_inactive_window_title" "#W ")
 
@@ -47,7 +48,7 @@ function generate_inactive_window_string() {
     local separator_end="#[bg=${PALLETE[bg_highlight]},fg=${PALLETE['dark3']}]${left_separator:?}#[none]"
   fi
 
-  echo "${separator_start}#[fg=${PALLETE[white]}]#I${separator_internal}#[fg=${PALLETE[white]}] #{?window_zoomed_flag,$zoomed_window_icon,$inactive_window_icon}${inactive_window_title}${separator_end}"
+  echo "${separator_start}#[fg=${PALLETE[white]}]#I${separator_internal}#[fg=${PALLETE[white]}] #{?window_zoomed_flag,$zoomed_window_icon,$inactive_window_icon}${inactive_window_title}#{?#{==:#{@has_open_ports},yes},$port_indicator_format,}${separator_end}"
 }
 
 function generate_active_window_string() {
@@ -56,6 +57,7 @@ function generate_active_window_string() {
   zoomed_window_icon=$(get_tmux_option "@theme_plugin_zoomed_window_icon" " ")
   pane_synchronized_icon=$(get_tmux_option "@theme_plugin_pane_synchronized_icon" "✵")
   left_separator=$(get_tmux_option "@theme_left_separator" "")
+  port_indicator_icon=$(get_tmux_option "@theme_port_indicator_icon" "{:}")
   transparent=$(get_tmux_option "@theme_transparent_status_bar" "false")
   active_window_title=$(get_tmux_option "@theme_active_window_title" "#W ")
 
@@ -71,5 +73,5 @@ function generate_active_window_string() {
     separator_end="#[bg=${PALLETE[bg_highlight]},fg=${PALLETE['cmd_purple']}]${left_separator:?}#[none]"
   fi
 
-  echo "${separator_start}#[fg=${PALLETE[white]}]#I${separator_internal}#[fg=${PALLETE[white]}] #{?window_zoomed_flag,$zoomed_window_icon,$active_window_icon}${active_window_title}#{?pane_synchronized,$pane_synchronized_icon,}${separator_end}#[none]"
+  echo "${separator_start}#[fg=${PALLETE[white]}]#I${separator_internal}#[fg=${PALLETE[white]}] #{?window_zoomed_flag,$zoomed_window_icon,$active_window_icon}${active_window_title}#{?#{==:#{@has_open_ports},yes},$port_indicator_format,}#{?pane_synchronized,$pane_synchronized_icon,}${separator_end}#[none]"
 }
