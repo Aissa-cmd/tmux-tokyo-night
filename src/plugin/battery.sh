@@ -24,145 +24,150 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 s_osx() {
-    [ "$(uname)" == "Darwin" ]
+  [ "$(uname)" == "Darwin" ]
 }
 
 is_chrome() {
-    chrome="/sys/class/chromeos/cros_ec"
-    if [ -d "$chrome" ]; then
-        return 0
-    else
-        return 1
-    fi
+  chrome="/sys/class/chromeos/cros_ec"
+  if [ -d "$chrome" ]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 is_wsl() {
-    if [ ! -f /proc/version ]; then
-        return 1
-    fi
+  if [ ! -f /proc/version ]; then
+    return 1
+  fi
 
-    version=$(</proc/version)
-    if [[ "$version" == *"Microsoft"* || "$version" == *"microsoft"* ]]; then
-        return 0
-    else
-        return 1
-    fi
+  version=$(</proc/version)
+  if [[ "$version" == *"Microsoft"* || "$version" == *"microsoft"* ]]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 command_exists() {
-    local command="$1"
-    type "$command" >/dev/null 2>&1
+  local command="$1"
+  type "$command" >/dev/null 2>&1
 }
 
 battery_status() {
-    if is_wsl; then
-        local battery
-        battery=$(find /sys/class/power_supply/*/status | tail -n1)
-        awk '{print tolower($0);}' "$battery"
-    elif command_exists "pmset"; then
-        pmset -g batt | awk -F '; *' 'NR==2 { print $2 }'
-    elif command_exists "acpi"; then
-        acpi -b | awk '{gsub(/,/, ""); print tolower($3); exit}'
-    elif command_exists "upower"; then
-        local battery
-        battery=$(upower -e | grep -E 'battery|DisplayDevice'| tail -n1)
-        upower -i "$battery" | awk '/state/ {print $2}'
-    elif command_exists "termux-battery-status"; then
-        termux-battery-status | jq -r '.status' | awk '{printf("%s%", tolower($1))}'
-    elif command_exists "apm"; then
-        local battery
-        battery=$(apm -a)
-        if [ "$battery" -eq 0 ]; then
-            echo "discharging"
-        elif [ "$battery" -eq 1 ]; then
-            echo "charging"
-        fi
+  if is_wsl; then
+    local battery
+    battery=$(find /sys/class/power_supply/*/status | tail -n1)
+    awk '{print tolower($0);}' "$battery"
+  elif command_exists "pmset"; then
+    pmset -g batt | awk -F '; *' 'NR==2 { print $2 }'
+  elif command_exists "acpi"; then
+    acpi -b | awk '{gsub(/,/, ""); print tolower($3); exit}'
+  elif command_exists "upower"; then
+    local battery
+    battery=$(upower -e | grep -E 'battery|DisplayDevice' | tail -n1)
+    upower -i "$battery" | awk '/state/ {print $2}'
+  elif command_exists "termux-battery-status"; then
+    termux-battery-status | jq -r '.status' | awk '{printf("%s%", tolower($1))}'
+  elif command_exists "apm"; then
+    local battery
+    battery=$(apm -a)
+    if [ "$battery" -eq 0 ]; then
+      echo "discharging"
+    elif [ "$battery" -eq 1 ]; then
+      echo "charging"
     fi
+  fi
 }
 
 print_battery_percentage() {
-    # percentage displayed in the 2nd field of the 2nd row
-    if is_wsl; then
-        local battery
-        battery=$(find /sys/class/power_supply/*/capacity | tail -n1)
-        cat "$battery"
-    elif command_exists "pmset"; then
-        pmset -g batt | grep -o "[0-9]\{1,3\}%"
-    elif command_exists "acpi"; then
-        acpi -b | grep -m 1 -Eo "[0-9]+%"
-    elif command_exists "upower"; then
-        # use DisplayDevice if available otherwise battery
-        local battery
-        battery=$(upower -e | grep -E 'battery|DisplayDevice'| tail -n1)
-        if [ -z "$battery" ]; then
-            return
-        fi
-        local percentage
-        percentage=$(upower -i "$battery" | awk '/percentage:/ {print $2}')
-        if [ "$percentage" ]; then
-            echo "${percentage%.*%}"
-            return
-        fi
-        local energy
-        local energy_full
-        energy=$(upower -i "$battery" | awk -v nrg="$energy" '/energy:/ {print nrg+$2}')
-        energy_full=$(upower -i "$battery" | awk -v nrgfull="$energy_full" '/energy-full:/ {print nrgfull+$2}')
-        if [ -n "$energy" ] && [ -n "$energy_full" ]; then
-            echo "$energy" "$energy_full" | awk '{printf("%d%%", ($1/$2)*100)}'
-        fi
-    elif command_exists "termux-battery-status"; then
-        termux-battery-status | jq -r '.percentage' | awk '{printf("%d%%", $1)}'
-    elif command_exists "apm"; then
-        apm -l
+  # percentage displayed in the 2nd field of the 2nd row
+  if is_wsl; then
+    local battery
+    battery=$(find /sys/class/power_supply/*/capacity | tail -n1)
+    cat "$battery"
+  elif command_exists "pmset"; then
+    pmset -g batt | grep -o "[0-9]\{1,3\}%"
+  elif command_exists "acpi"; then
+    acpi -b | grep -m 1 -Eo "[0-9]+%"
+  elif command_exists "upower"; then
+    # use DisplayDevice if available otherwise battery
+    local battery
+    battery=$(upower -e | grep -E 'battery|DisplayDevice' | tail -n1)
+    if [ -z "$battery" ]; then
+      return
     fi
+    local percentage
+    percentage=$(upower -i "$battery" | awk '/percentage:/ {print $2}')
+    if [ "$percentage" ]; then
+      echo "${percentage%.*%}"
+      return
+    fi
+    local energy
+    local energy_full
+    energy=$(upower -i "$battery" | awk -v nrg="$energy" '/energy:/ {print nrg+$2}')
+    energy_full=$(upower -i "$battery" | awk -v nrgfull="$energy_full" '/energy-full:/ {print nrgfull+$2}')
+    if [ -n "$energy" ] && [ -n "$energy_full" ]; then
+      echo "$energy" "$energy_full" | awk '{printf("%d%%", ($1/$2)*100)}'
+    fi
+  elif command_exists "termux-battery-status"; then
+    termux-battery-status | jq -r '.percentage' | awk '{printf("%d%%", $1)}'
+  elif command_exists "apm"; then
+    apm -l
+  fi
 }
 ##################################################
-
 
 # When run with no args, return place holders to create a template that we'll replace with real
 # values when run by tmux
 if [ $# -eq 0 ]; then
-    plugin_battery_icon="_ICON_"
-    plugin_battery_accent_color="_ACCENT_COLOR_"
-    plugin_battery_accent_color_icon="_ACCENT_COLOR_ICON_"
-    export plugin_battery_icon plugin_battery_accent_color plugin_battery_accent_color_icon
-    echo "_BATTERY_"
+  plugin_battery_icon="_ICON_"
+  plugin_battery_accent_color="_ACCENT_COLOR_"
+  plugin_battery_accent_color_icon="_ACCENT_COLOR_ICON_"
+  export plugin_battery_icon plugin_battery_accent_color plugin_battery_accent_color_icon
+  echo "_BATTERY_"
 else
 
-    # We have the template, replace the placeholders with real values now
+  # We have the template, replace the placeholders with real values now
 
-    battery_percentage=$(print_battery_percentage)
-    charging_status=$(battery_status)
+  battery_percentage=$(print_battery_percentage)
+  charging_status=$(battery_status)
+  battery_number="${battery_percentage//%/}"
 
-    if [ "$charging_status" ==  "charging" ] || [ "$charging_status" == "charged" ]; then
-        plugin_battery_icon=$(get_tmux_option "@theme_plugin_battery_charging_icon" " ")
-    else
-        plugin_battery_icon=$(get_tmux_option "@theme_plugin_battery_discharging_icon" "󰁹")
-    fi
+  # Only show battery when charging or below 40%
+  if [ "$charging_status" != "charging" ] && [ "$charging_status" != "charged" ] && [ "$battery_number" -ge 40 ]; then
+    # Return empty string to hide the battery indicator
+    echo ""
+    exit 0
+  fi
 
-    battery_number="${battery_percentage//%/}"
+  if [ "$charging_status" == "charging" ] || [ "$charging_status" == "charged" ]; then
+    plugin_battery_icon=$(get_tmux_option "@theme_plugin_battery_charging_icon" " ")
+  else
+    plugin_battery_icon=$(get_tmux_option "@theme_plugin_battery_discharging_icon" "󰁹")
+  fi
 
-    # load palette
-    theme_variation=$(get_tmux_option "@theme_variation" "night")
-    # shellcheck source=src/palletes/night.sh
-    . "$ROOT_DIR/../palletes/$theme_variation.sh"
+  # load palette
+  theme_variation=$(get_tmux_option "@theme_variation" "night")
+  # shellcheck source=src/palletes/night.sh
+  . "$ROOT_DIR/../palletes/$theme_variation.sh"
 
-    if [ "$battery_number" -lt "$(get_tmux_option '@theme_plugin_battery_red_threshold' '10')" ]; then
-        plugin_battery_accent_color=$(get_tmux_option "@theme_plugin_battery_red_accent_color" "red")
-        plugin_battery_accent_color_icon=$(get_tmux_option "@theme_plugin_battery_red_accent_color_icon" "magenta2")
-    elif [ "$battery_number" -lt "$(get_tmux_option '@theme_plugin_battery_yellow_threshold' '30')" ]; then
-        plugin_battery_accent_color=$(get_tmux_option "@theme_plugin_battery_yellow_accent_color" "yellow")
-        plugin_battery_accent_color_icon=$(get_tmux_option "@theme_plugin_battery_yellow_accent_color_icon" "orange")
-    else
-        plugin_battery_accent_color=$(get_tmux_option "@theme_plugin_battery_green_accent_color" "blue7")
-        plugin_battery_accent_color_icon=$(get_tmux_option "@theme_plugin_battery_green_accent_color_icon" "blue0")
-    fi
+  if [ "$battery_number" -lt "$(get_tmux_option '@theme_plugin_battery_red_threshold' '10')" ]; then
+    plugin_battery_accent_color=$(get_tmux_option "@theme_plugin_battery_red_accent_color" "red")
+    plugin_battery_accent_color_icon=$(get_tmux_option "@theme_plugin_battery_red_accent_color_icon" "magenta2")
+  elif [ "$battery_number" -lt "$(get_tmux_option '@theme_plugin_battery_yellow_threshold' '30')" ]; then
+    plugin_battery_accent_color=$(get_tmux_option "@theme_plugin_battery_yellow_accent_color" "yellow")
+    plugin_battery_accent_color_icon=$(get_tmux_option "@theme_plugin_battery_yellow_accent_color_icon" "orange")
+  else
+    plugin_battery_accent_color=$(get_tmux_option "@theme_plugin_battery_green_accent_color" "blue7")
+    plugin_battery_accent_color_icon=$(get_tmux_option "@theme_plugin_battery_green_accent_color_icon" "blue0")
+  fi
 
-    template=$1
-    result="${template//_ACCENT_COLOR_ICON_/${PALLETE[$plugin_battery_accent_color_icon]}}"
-    result="${result//_ACCENT_COLOR_/${PALLETE[$plugin_battery_accent_color]}}"
-    result="${result//_ICON_/$plugin_battery_icon}"
-    result="${result//_BATTERY_/$battery_percentage}"
+  template=$1
+  result="${template//_ACCENT_COLOR_ICON_/${PALLETE[$plugin_battery_accent_color_icon]}}"
+  result="${result//_ACCENT_COLOR_/${PALLETE[$plugin_battery_accent_color]}}"
+  result="${result//_ICON_/$plugin_battery_icon}"
+  result="${result//_BATTERY_/$battery_percentage}"
 
-    echo "$result"
+  echo "$result"
 fi
